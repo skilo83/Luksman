@@ -80,15 +80,15 @@ def createNewContainer(mappingName):
 	print("LUKS mapper: ", mapPath)
 	input("Press enter to return to main menu")
  
-def openContainer(mappingName):
-	containerName = input("Enter container name: ")
-	ret = subprocess.call(["cryptsetup", "luksOpen", containerName, mappingName])
+def openContainer(containerFileName):
+	randMapName = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(0, 10))
+	ret = subprocess.call(["cryptsetup", "luksOpen", containerFileName, randMapName])
 	
 	if (int(ret) != 0 ):
 		print("error opening container.\n")
 		sys.exit(1)
 		
-	tuple2 = ("/dev/mapper/", mappingName)
+	tuple2 = ("/dev/mapper/", randMapName)
 	mapPath = "".join(tuple2)
 	
 	print("Creating mount point\n")
@@ -105,7 +105,7 @@ def openContainer(mappingName):
 		print("Mount failed. Exiting..")
 		sys.exit(1)
 		
-	print("Success!", str(containerName), "is mounted at ", mountPoint, "\n")
+	print("Success!", str(containerFileName), "is mounted at ", mountPoint, "\n")
 	input("Press enter to return to main menu")
  
 def closeContainer(mappingName):
@@ -129,7 +129,7 @@ def containerStatus(mappingName):
 	os.system("clear")
 	
 def cleanMountPoints():
-	#delete all the mount points in /mnt/container/
+	#delete all the mount points in /mnt/containers/
 	ret = subprocess.call(["rm", "-rf", "/mnt/containers/luks/"])
 	print("\n")
 	input("Done. Press enter to return to main menu.")
@@ -160,7 +160,7 @@ def main():
 			randMapName = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(0, 10))
 			createNewContainer(randMapName)
 		elif (str(answer) == "2"):
-			c = input("Enter mapping name: ")
+			c = input("Container file to open: ")
 			openContainer(str(c))
 		elif (str(answer) == "3"):
 			print("Active mapping names:")
