@@ -19,7 +19,7 @@ along with this program.  If not, see https://www.gnu.org/licenses/.
 import os
 import sys
 import string
-import random
+import secrets
 import subprocess
 
 is_root = os.getuid() == 0
@@ -62,7 +62,7 @@ def createNewContainer(mappingName):
 		sys.exit(1)
 		
 	print("Creating mount point\n")
-	randMountPoint = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(0, 10))
+	randMountPoint = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(0, 24))
 	tuple2 = ("/mnt/containers/luks/", randMountPoint)
 	mountPoint = "".join(tuple2)
 	#mkdir has no return value
@@ -81,7 +81,7 @@ def createNewContainer(mappingName):
 	input("Press enter to return to main menu")
  
 def openContainer(containerFileName):
-	randMapName = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(0, 10))
+	randMapName = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(0, 24))
 	ret = subprocess.call(["cryptsetup", "luksOpen", containerFileName, randMapName])
 	
 	if (int(ret) != 0 ):
@@ -92,7 +92,7 @@ def openContainer(containerFileName):
 	mapPath = "".join(tuple2)
 	
 	print("Creating mount point\n")
-	randMountPoint = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(0, 10))
+	randMountPoint = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(0, 24))
 	tuple2 = ("/mnt/containers/luks/", randMountPoint)
 	mountPoint = "".join(tuple2)
 	#mkdir has no return value
@@ -157,7 +157,7 @@ def main():
 		os.system("clear")
 		
 		if (str(answer) == "1"):
-			randMapName = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(0, 10))
+			randMapName = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(0, 24))
 			createNewContainer(randMapName)
 		elif (str(answer) == "2"):
 			c = input("Container file to open: ")
@@ -188,4 +188,3 @@ def main():
  
 if __name__=='__main__':
 	main()
-
