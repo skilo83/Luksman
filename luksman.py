@@ -37,7 +37,13 @@ def createNewContainer(mappingName):
 	ret = subprocess.call(["truncate", "-s", containerSize, containerName])
 	print("LUKS setup..\n")
 	
-	ret = subprocess.call(["cryptsetup", "luksFormat", "--cipher=aes-xts-plain64", "--key-size=512", "--pbkdf=argon2i", "--pbkdf-memory=128", containerName])
+	ret = subprocess.call(["cryptsetup",
+	"luksFormat",
+	"--cipher=aes-xts-plain64",
+	"--key-size=512",
+	"--pbkdf=argon2i",
+	"--pbkdf-memory=128",
+	containerName])
 	
 	if (int(ret) != 0):
 		print("An error occoured.\n")
