@@ -135,7 +135,6 @@ def openContainer():
 def closeContainer():
 	try:
 		print("Use ctrl+c to abort.\n")
-		print("WARNING. Do NOT proceed if mapping names are active.")
 		print("Active mapping names:")
 		ret = subprocess.call(["dmsetup", "ls"])
 		print("\n")
@@ -173,8 +172,8 @@ def containerStatus():
 def cleanMountPoints():
 	#delete all the mount points in /mnt/containers/
 	try:
-		input("Press enter to proceed or ctrl+c to abort.\n")
 		print("WARNING. Do not proceed if mapping names are active.\n")
+		input("Press enter to proceed or ctrl+c to abort.\n")
 		print("Active mapping names:")
 		ret = subprocess.call(["dmsetup", "ls"])
 		ret = subprocess.call(["rm", "-rf", "/mnt/containers/luks/"])
