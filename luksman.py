@@ -173,9 +173,10 @@ def cleanMountPoints():
 	#delete all the mount points in /mnt/containers/
 	try:
 		print("WARNING. Do not proceed if mapping names are active.\n")
-		input("Press enter to proceed or ctrl+c to abort.\n")
 		print("Active mapping names:")
 		ret = subprocess.call(["dmsetup", "ls"])
+		print("\n")
+		input("Press enter to proceed or ctrl+c to abort.\n")
 		ret = subprocess.call(["rm", "-rf", "/mnt/containers/luks/"])
 		print("\n")
 		input("Done. Press enter to return to main menu.")
