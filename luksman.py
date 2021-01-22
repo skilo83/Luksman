@@ -24,39 +24,48 @@ import subprocess
 
 is_root = os.getuid() == 0
  
-def createNewContainer(mappingName):
-	containerName = input("Enter a name for the container file:\n")
-	containerSize = input("Please enter a size in MB for the container: ")
-	if (int(containerSize) < 50):
-		print("You must enter a size greater than 49MB")
-		sys.exit(1)
+def createNewContainer():
+
+	#use try catch to allow user to abort if needed
+	try:
+		print("Use ctrl+c to abort.\n")
+		containerName = input("Enter a name for the container file: ")
+		containerSize = input("Please enter a size in MB for the container: ")
+		if (int(containerSize) < 50):
+			print("You must enter a size greater than 49MB")
+			sys.exit(1)
+			
+		tuple1 = (containerSize, "M")
+		containerSize = "".join(tuple1)
 		
-	tuple1 = (containerSize, "M")
-	containerSize = "".join(tuple1)
-	
-	ret = subprocess.call(["truncate", "-s", containerSize, containerName])
-	print("LUKS setup..\n")
-	
-	ret = subprocess.call(["cryptsetup",
-	"luksFormat",
-	"--cipher=aes-xts-plain64",
-	"--key-size=512",
-	"--pbkdf=argon2i",
-	"--pbkdf-memory=128",
-	containerName])
-	
-	if (int(ret) != 0):
-		print("An error occoured.\n")
-		sys.exit(1)
+		ret = subprocess.call(["truncate", "-s", containerSize, containerName])
+		print("LUKS setup..\n")
 		
-	print("Enter the password you just created\n")
-	ret = subprocess.call(["cryptsetup", "luksOpen", containerName, mappingName])
-	
-	if (int(ret) != 0):
-		print("An error occoured.\n")
-		sys.exit(1)
+		ret = subprocess.call(["cryptsetup",
+		"luksFormat",
+		"--cipher=aes-xts-plain64",
+		"--key-size=512",
+		"--pbkdf=argon2i",
+		"--pbkdf-memory=128",
+		containerName])
 		
-	tuple2 = ("/dev/mapper/", mappingName)
+		if (int(ret) != 0):
+			print("An error occoured.\n")
+			sys.exit(1)
+			
+		print("Enter the password you just created\n")
+		randMapName = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(0, 24))
+		ret = subprocess.call(["cryptsetup", "luksOpen", containerName, randMapName])
+		
+		if (int(ret) != 0):
+			print("An error occoured.\n")
+			sys.exit(1)
+			
+	except KeyboardInterrupt:
+		return
+		
+		
+	tuple2 = ("/dev/mapper/", randMapName)
 	mapPath = "".join(tuple2)
 		
 	print("Formatting the container file\n")
@@ -86,13 +95,22 @@ def createNewContainer(mappingName):
 	print("LUKS mapper: ", mapPath)
 	input("Press enter to return to main menu")
  
-def openContainer(containerFileName):
-	randMapName = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(0, 24))
-	ret = subprocess.call(["cryptsetup", "luksOpen", containerFileName, randMapName])
-	
-	if (int(ret) != 0 ):
-		print("error opening container.\n")
-		sys.exit(1)
+def openContainer():
+
+	#use try catch to allow user to abort if needed
+	try:
+		print("Use ctrl+c to abort.\n")
+		containerFileName = input("Container file to open: ")
+		randMapName = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(0, 24))
+		ret = subprocess.call(["cryptsetup", "luksOpen", containerFileName, randMapName])
+		
+		if (int(ret) != 0 ):
+			print("error opening container.\n")
+			input("Press enter to return to main menu.")
+			return
+			
+	except KeyboardInterrupt:
+		return
 		
 	tuple2 = ("/dev/mapper/", randMapName)
 	mapPath = "".join(tuple2)
@@ -114,7 +132,17 @@ def openContainer(containerFileName):
 	print("Success!", str(containerFileName), "is mounted at ", mountPoint, "\n")
 	input("Press enter to return to main menu")
  
-def closeContainer(mappingName):
+def closeContainer():
+	try:
+		print("Use ctrl+c to abort.\n")
+		print("WARNING. Do NOT proceed if mapping names are active.")
+		print("Active mapping names:")
+		ret = subprocess.call(["dmsetup", "ls"])
+		print("\n")
+		mappingName = input("Enter mapping name: ")
+	except KeyboardInterrupt:
+		return
+		
 	print("Unmounting container..\n")
 	tuple2 = ("/dev/mapper/", mappingName)
 	mapPath = "".join(tuple2)
@@ -128,69 +156,70 @@ def closeContainer(mappingName):
 		input("\nDone! Press enter to return to main menu")
 	
 	return
- 
-def containerStatus(mappingName):
-	ret = subprocess.call(["cryptsetup", "status", mappingName])
-	input("Press enter to return to main menu")
-	os.system("clear")
+		
+def containerStatus():
+	try:
+		print("Use ctrl+c to abort.\n")
+		print("Active mapping names:")
+		ret = subprocess.call(["dmsetup", "ls"])
+		print("\n")
+		mappingName = input("Enter mapping name: ")
+		ret = subprocess.call(["cryptsetup", "status", mappingName])
+		input("Press enter to return to main menu")
+		os.system("clear")
+	except KeyboardInterrupt:
+		return
 	
 def cleanMountPoints():
 	#delete all the mount points in /mnt/containers/
-	ret = subprocess.call(["rm", "-rf", "/mnt/containers/luks/"])
-	print("\n")
-	input("Done. Press enter to return to main menu.")
- 
-def main():
- 
-	os.system("clear")
-	if (not is_root):
-		print("Run it as root.")
-		sys.exit(0)
-	
-	while True:
-		os.system("clear")
-		print("*** LUKS Manager by Anonymous ***\n")
+	try:
+		input("Press enter to proceed or ctrl+c to abort.\n")
+		print("WARNING. Do not proceed if mapping names are active.\n")
 		print("Active mapping names:")
 		ret = subprocess.call(["dmsetup", "ls"])
-		print("\nWhat would you like to do?")
-		print("1 = Create a new LUKS container.")
-		print("2 = Open a LUKS container.")
-		print("3 = Close a LUKS container.")
-		print("4 = Check status of a LUKS mapping name.")
-		print("5 = Clean mount points.")
-		print("6 = Exit.\n")
-		answer = input("> ")
+		ret = subprocess.call(["rm", "-rf", "/mnt/containers/luks/"])
+		print("\n")
+		input("Done. Press enter to return to main menu.")
+	except KeyboardInterrupt:
+		return
+ 
+def main():
+	try:
 		os.system("clear")
-		
-		if (str(answer) == "1"):
-			randMapName = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(0, 24))
-			createNewContainer(randMapName)
-		elif (str(answer) == "2"):
-			c = input("Container file to open: ")
-			openContainer(str(c))
-		elif (str(answer) == "3"):
-			print("Active mapping names:")
-			ret = subprocess.call(["dmsetup", "ls"])
-			print("\n")
-			c = input("Enter mapping name: ")
-			closeContainer(str(c))
-		elif (str(answer) == "4"):
-			print("Active mapping names:")
-			ret = subprocess.call(["dmsetup", "ls"])
-			print("\n")
-			c = input("Enter mapping name: ")
-			containerStatus(str(c))
-		elif (str(answer) == "5"):
-			print("Active mapping names:")
-			ret = subprocess.call(["dmsetup", "ls"])
-			print("\nWARNING. Do not proceed if mapping names are active.\n")
-			try:
-				input("Press enter to proceed or ctrl+c to abort.")
-				cleanMountPoints()
-			except KeyboardInterrupt:
-				print("Aborted.")
-		elif (str(answer) == "6"):
+		if (not is_root):
+			print("Run it as root.")
 			sys.exit(0)
+			
+		while True:
+			os.system("clear")
+			print("*** LUKS Manager by Anonymous ***\n")
+			print("Active mapping names:")
+			ret = subprocess.call(["dmsetup", "ls"])
+			print("\nWhat would you like to do?")
+			print("1 = Create a new LUKS container.")
+			print("2 = Open a LUKS container.")
+			print("3 = Close a LUKS container.")
+			print("4 = Check status of a LUKS mapping name.")
+			print("5 = Clean mount points.")
+			print("6 = Exit.\n")
+			answer = input("> ")
+			os.system("clear")
+			
+			if (str(answer) == "1"):
+				createNewContainer()
+			elif (str(answer) == "2"):
+				openContainer()
+			elif (str(answer) == "3"):
+				closeContainer()
+			elif (str(answer) == "4"):
+				containerStatus()
+			elif (str(answer) == "5"):
+				cleanMountPoints()
+			elif (str(answer) == "6"):
+				sys.exit(0)
+				
+	except KeyboardInterrupt:
+		sys.exit(0)
  
 if __name__=='__main__':
 	main()
