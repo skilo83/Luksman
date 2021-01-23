@@ -28,6 +28,7 @@ def createNewContainer():
 
 	#use try catch to allow user to abort if needed
 	try:
+		print("*** Create new LUKS container ***")
 		print("Use ctrl+c to abort.\n")
 		containerName = input("Enter a name for the container file: ")
 		containerSize = input("Please enter a size in MB for the container: ")
@@ -99,6 +100,7 @@ def openContainer():
 
 	#use try catch to allow user to abort if needed
 	try:
+		print("*** Open LUKS container ***")
 		print("Use ctrl+c to abort.\n")
 		containerFileName = input("Container file to open: ")
 		randMapName = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(0, 24))
@@ -134,6 +136,7 @@ def openContainer():
  
 def closeContainer():
 	try:
+		print("*** Close LUKS container ***")
 		print("Use ctrl+c to abort.\n")
 		print("Active mapping names:")
 		ret = subprocess.call(["dmsetup", "ls"])
@@ -158,6 +161,7 @@ def closeContainer():
 		
 def containerStatus():
 	try:
+		print("*** Check container status ***")
 		print("Use ctrl+c to abort.\n")
 		print("Active mapping names:")
 		ret = subprocess.call(["dmsetup", "ls"])
@@ -172,6 +176,7 @@ def containerStatus():
 def cleanMountPoints():
 	#delete all the mount points in /mnt/containers/
 	try:
+		print("*** Clean mount points ***\n")
 		print("WARNING. Do not proceed if mapping names are active.\n")
 		print("Active mapping names:")
 		ret = subprocess.call(["dmsetup", "ls"])
