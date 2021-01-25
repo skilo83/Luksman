@@ -10,13 +10,13 @@ A simple LUKS container manager through the CLI. Disclaimer: I did not create th
 
 >chmod +x luksman
 
->sh install.sh
+>sudo sh install.sh
 
 ## Uninstall
 
 >chmod +x uninstall.sh
 
->sh uninstall.sh
+>sudo sh uninstall.sh
 
 ## Usage
 
