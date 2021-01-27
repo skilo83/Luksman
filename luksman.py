@@ -197,7 +197,7 @@ def main():
 			
 		while True:
 			os.system("clear")
-			print("*** LUKS Manager by Anonymous ***\n")
+			print("*** LUKS Manager ***\n")
 			print("Active mapping names:")
 			ret = subprocess.call(["dmsetup", "ls"])
 			print("\nWhat would you like to do?")
