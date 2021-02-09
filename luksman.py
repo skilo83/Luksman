@@ -77,6 +77,13 @@ def createNewContainer():
 		print("mkfs failed to format the container.\n")
 		sys.exit(1)
 		
+	#ask user if they want to mount
+	print("The container has been created successfully.\n")
+	a = input("Would you like to mount this container now? y/n: ")
+	if (a is not "y"):
+	    ret = subprocess.call(["cryptsetup", "luksClose", mapPath])
+	    return
+		
 	print("Creating mount point\n")
 	randMountPoint = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(0, 24))
 	tuple2 = ("/mnt/containers/luks/", randMountPoint)
