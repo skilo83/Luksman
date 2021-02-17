@@ -71,7 +71,7 @@ def createNewContainer():
 		
 	print("Formatting the container file\n")
 	
-	ret = subprocess.call(["mkfs.ext4", "-O", "^has_journal", "-j", mapPath])
+	ret = subprocess.call(["mkfs.ext4", "-O", "^has_journal", mapPath])
 	
 	if (int(ret) != 0):
 		print("mkfs failed to format the container.\n")
